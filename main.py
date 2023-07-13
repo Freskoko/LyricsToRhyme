@@ -16,6 +16,7 @@ def open_lyrics():
             word = word.replace(",","")
 
             cleanlines.append(word)
+            #-test comment
 
         return cleanlines
 

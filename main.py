@@ -1,6 +1,7 @@
 from collections import Counter
 import pronouncing
 import random
+#TODO dictonary
 
 def open_lyrics():
     with open("lyrics.txt","r") as lyrics:
@@ -22,43 +23,68 @@ def open_lyrics():
 
 def find_common_words(wordlist):
 
-    commonwords = Counter(wordlist)
+    while "\n" in wordlist:
+        wordlist.remove("\n")
+
+    newworldlist = []
+    for word in wordlist:
+        word = word.replace("\n"," ")
+        for subword in word.split(" "):
+            newworldlist.append(subword)
+
+    commonwords = Counter(newworldlist)
     commonlist = list(commonwords.items())
     commonlist.sort(key = lambda i:i[1], reverse = True)
  
-    return(commonlist[0:20])
+    return(commonlist[0:30])
 
 def replace_words(words,replace):
 
-    # print(words)
-   
-    longLyrics = (" ".join(words))
+    #for line in words
+    #if word in replace, find a rhyme
+    #replace word with rhyme
+    #try 10 times, if fails then go next line
 
-    for word,num in replace:
+    replace = [i[0] for i in replace]
+    newwords = []
+    print(replace)
+
+    for sentence in words:
         
-        for i in range(longLyrics.count(word)):
-            try:
+        if sentence in replace:
 
-                rhyme = pronouncing.rhymes(word)
-                chosenrhyme = random.choice(rhyme)
-
-                while pronouncing.syllable_count(word) != pronouncing.syllable_count(chosenrhyme) and len(chosenrhyme) != len(word) and word not in chosenrhyme:
-                    rhyme = pronouncing.rhymes(word)
-                    chosenrhyme = random.choice(rhyme)
+            rhyme = pronouncing.rhymes(sentence)
+            if rhyme != []:
                 
-                print(chosenrhyme,word)
+                attempt = 0
 
-                # while word in longLyrics:
-                longLyrics = longLyrics.replace(word,chosenrhyme,1)
+                sentence = random.choice(rhyme)
+                while is_rhyme_not_accepted(sentence,attempt):
+                    #check if rhyme is ok or is weird
+                    sentence = random.choice(rhyme)
+                    print(sentence)
+                    attempt+=1
+        
+        newwords.append(sentence)
+    
 
-            except Exception as e:
-                print(f"error {e}")
-
-
-    with open(f"data/rhyminglyrics3.txt","w") as f:
-        f.writelines(longLyrics)
+    with open(f"data/rhyminglyrics7.txt","w") as f:
+        f.writelines(" ".join(newwords))
 
     return "completed"
 
-commonwords = find_common_words(open_lyrics())
-print(replace_words(open_lyrics(),commonwords))
+def is_rhyme_not_accepted(rhyme,attempt):
+
+    if attempt == 10:
+        return (False)
+    
+    return True
+
+
+
+if __name__ == "__main__":
+
+    lyrics = open_lyrics()
+    commonwords = find_common_words(lyrics)
+
+    print(replace_words(lyrics,commonwords))
